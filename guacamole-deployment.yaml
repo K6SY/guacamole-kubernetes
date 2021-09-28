@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guacamole-deployment
+  name: guacamole-deployment
+  namespace: guacamole-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guacamole-deployment
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: guacamole-deployment
+    spec:
+      containers:
+      - image: guacamole/guacd
+        name: guacd
+        ports:
+        - containerPort: 4822
+      - image: guacamole/guacamole
+        name: guacamole
+        resources: {}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GUACD_HOSTNAME
+          value: "127.0.0.1"
+        - name: GUACD_PORT
+          value: "4822"
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: guacamole-secret
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: guacamole-secret
+              key: password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: guacamole-secret
+              key: database
+        - name: MYSQL_HOSTNAME
+          valueFrom:
+            secretKeyRef:
+              name: guacamole-secret
+              key: hostname
